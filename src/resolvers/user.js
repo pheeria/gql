@@ -1,7 +1,5 @@
-import mongoose from 'mongoose'
-import { UserInputError } from 'apollo-server-express'
 import { User } from '../models'
-import { signUp, signIn } from '../schemas'
+import { signUp, signIn, objectId } from '../schemas'
 import * as Auth from '../auth'
 
 export default {
@@ -16,12 +14,10 @@ export default {
 
       return User.find({})
     },
-    user: (root, args, { req }, info) => {
+    user: async (root, args, { req }, info) => {
       // TODO: projection
 
-      if (!mongoose.Types.ObjectId.isValid(args.id)) {
-        throw new UserInputError('User ID is not a valid user ID.')
-      }
+      await objectId.validateAsync(args, { abortEarly: false })
 
       return User.findById(args.id)
     }
@@ -47,6 +43,11 @@ export default {
     },
     signOut: (root, args, { req, res }, info) => {
       return Auth.signOut(req, res)
+    }
+  },
+  User: {
+    chats: async (user, args, context, info) => {
+      return (await user.populate('chats').execPopulate()).chats
     }
   }
 }
