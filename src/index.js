@@ -6,6 +6,7 @@ import redis from 'redis'
 import mongoose from 'mongoose'
 import typeDefs from './typeDefs'
 import resolvers from './resolvers'
+import schemaDirectives from './directives'
 import {
   APP_PORT,
   IN_PROD,
@@ -40,7 +41,7 @@ import {
       resave: false,
       saveUninitialized: false,
       cookie: {
-        maxAge: SESSION_LIFETIME,
+        maxAge: parseInt(SESSION_LIFETIME, 10),
         sameSite: true,
         secure: IN_PROD
       }
@@ -49,7 +50,7 @@ import {
     const server = new ApolloServer({
       typeDefs,
       resolvers,
-      cors: false,
+      schemaDirectives,
       playground: IN_PROD ? false : {
         settings: {
           'request.credentials': 'include'
@@ -58,7 +59,7 @@ import {
       context: ({ req, res }) => ({ req, res })
     })
 
-    server.applyMiddleware({ app })
+    server.applyMiddleware({ app, cors: false })
 
     app.listen({ port: APP_PORT }, () =>
       console.log(
