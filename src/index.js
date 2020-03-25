@@ -19,7 +19,6 @@ import {
   try {
     await mongoose.connect(CONNECTION_STRING, { useNewUrlParser: true })
 
-    console.log(REDIS_HOST)
     const RedisStore = connectRedis(session)
     const redisClient = redis.createClient({
       host: REDIS_HOST,
@@ -38,7 +37,8 @@ import {
       store,
       name: SESSION_NAME,
       secret: SESSION_SECRET,
-      resave: false,
+      resave: true,
+      rolling: true,
       saveUninitialized: false,
       cookie: {
         maxAge: parseInt(SESSION_LIFETIME, 10),
